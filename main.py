@@ -1,7 +1,7 @@
 import json,os,urllib.request as u
 V=(0,100,320,330,500,900,0)
 W=']]»»iv]j]_]R^f]]"9/]<j<u<u<j/]"9FQR]R^R^RiSiR]FQ]]^i]]]]]]]]]]]]FRR]R]]]]]R]R]FR8,8,8,8,D8PEu]vh'
-M=10**5;B=J=[0]*128;C=0;E=-1;S=0;w=1;K=[0,0];D=[];N=[0];BG=48000
+M=10**5;B=J=[0]*128;C=0;E=-1;S=0;w=1;K=[0,0];D=[];N=[0];T={};BG=48000
 N0=(14,18,31,33,-14,-18,-31,-33);D0=(15,17,-15,-17);R0=(1,-1,16,-16);DO=((),(15,17),N0,D0,R0,D0+R0,R0+D0);CM={0:2,7:1,112:8,119:4,4:3,116:12}
 def P(p,q):t=abs(p);r=q>>4;i=[7-r,r][p<0];f=min(q&7,7-(q&7));j=32*t+i*4+f-32;v=ord(W[j//2])-33;v-=34*(v>93);return(V[t]+(v//11,v%11)[j&1]*10-50)*(p//abs(p))
 def A(s,y):
@@ -60,6 +60,7 @@ def O(ms,tm,p):ms.sort(key=lambda m:(m!=tm,-V[abs(B[m>>7&127])]*10+abs(B[m&127])
 def sr(d,a,b,p):
  N[0]+=1
  if N[0]>=BG:1/0
+ k=(tuple(B),w);tm=T.get(k,0)
  ic=A(K[~w],not w);d+=ic*(0<d<3)
  if d>0:
   ms=L()
@@ -73,12 +74,15 @@ def sr(d,a,b,p):
   else:
    if st>=b:return st
    a=max(a,st);ms=[m for m in L(1)if st+V[abs(B[m>>7&127])]+V[m>>14]+200>=a]
- for m in O(ms,0,p):
-  mk(m);s=-sr(d-1,-b,-a,p+1);un();a=max(a,s)
+ bm=0
+ for m in O(ms,tm,p):
+  mk(m);s=-sr(d-1,-b,-a,p+1);un()
+  if s>a:bm=m
+  a=max(a,s)
   if a>=b:
    if not B[m>>7&127]:J[p]=m
-   return a
- return a
+   T[k]=bm;return a
+ T[k]=bm;return a
 def pf(s):
  global B,C,E,S,w,K;a=s.split();B=[0]*128;K=[0,0];S=0;q=112
  for ch in a[0]:
@@ -94,7 +98,7 @@ def sq(a):return 16*int(a[1])+ord(a[0])-113
 def pu(s):return sq(s[:2])|(sq(s[2:4])<<7)|("nbrq".find(s[4:])+2<<14)*(s[4:]>'')
 def uc(m):f=m&127;t=m>>7&127;return"%c%d%c%d"%(f%8+97,f/16+1,t%8+97,t/16+1)+"  nbrq"[m>>14].strip()
 def rt(legal):
- ms=[pu(x)for x in legal];N[0]=0;bm=ms[0]
+ ms=[pu(x)for x in legal];N[0]=0;T.clear();bm=ms[0]
  for d in range(9):
   try:
    om=O(ms,bm,0);a=-M
