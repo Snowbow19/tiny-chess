@@ -1,20 +1,19 @@
 import json,os,urllib.request as u
 V=(0,100,320,330,500,900,0)
 W=']]»»iv]j]_]R^f]]"9/]<j<u<u<j/]"9FQR]R^R^RiSiR]FQ]]^i]]]]]]]]]]]]FRR]R]]]]]R]R]FR8,8,8,8,D8PEu]vh'
-M=10**5;B=[0]*128;C=0;E=-1;S=0;w=1;K=[0,0];D=[];N=[0];BG=48000;J=[0]*128
-N0=(14,18,31,33,-14,-18,-31,-33);D0=(15,17,-15,-17);R0=(1,-1,16,-16);DO=((),(),N0,D0,R0,D0+R0,R0+D0);CM={0:2,7:1,112:8,119:4,4:3,116:12}
-def P(p,q):t=abs(p);r=q>>4;i=r if p<0 else 7-r;f=q&7;f=min(f,7-f);j=32*t+i*4+f-32;v=ord(W[j//2])-33;v-=34*(v>93);return(V[t]+(divmod(v,11)[j&1]-5)*10)*(p//abs(p))
+M=10**5;B=J=[0]*128;C=0;E=-1;S=0;w=1;K=[0,0];D=[];N=[0];BG=48000
+N0=(14,18,31,33,-14,-18,-31,-33);D0=(15,17,-15,-17);R0=(1,-1,16,-16);DO=((),(15,17),N0,D0,R0,D0+R0,R0+D0);CM={0:2,7:1,112:8,119:4,4:3,116:12}
+def P(p,q):t=abs(p);r=q>>4;i=[7-r,r][p<0];f=min(q&7,7-(q&7));j=32*t+i*4+f-32;v=ord(W[j//2])-33;v-=34*(v>93);return(V[t]+(v//11,v%11)[j&1]*10-50)*(p//abs(p))
 def A(s,y):
- if any(not(s+d)&136 and B[s+d]==2*y-1 for d in((-15,-17)if y else(15,17))):return 1
- for j in(2,6,3,4):
+ for j in(3,4,1,2,6):
   v=(j,5)if 2<j<5 else(j,)
   for d in DO[j]:
-   q=s+d
+   q=s+d*(1-2*y)
    while not q&136:
     p=B[q]
     if p and(p>0)==y and abs(p)in v:return 1
-    if p or j%4==2:break
-    q+=d
+    if p or j in(1,2,6):break
+    q+=d*(1-2*y)
  return 0
 def G(o):
  r=[]
@@ -45,27 +44,26 @@ def G(o):
    if C&b and v!=w and B[rk]==4-8*v and not any(B[x]for x in e)and not any(A(x,v)for x in(k,e[0],e[1])):r.append(k|(e[1]<<7))
  return r
 def mk(m):
- global C,E,S,w;D.append((B[:],C,E,S,K[:]));f=m&127;t=m>>7&127;pr=m>>14;p=B[f];v=B[t]
- ep=p*p==1 and t==E and not v;cs=t+16-32*(p>0)if ep else t;vc=B[cs];n=pr*(p//abs(p))if pr else p
+ global C,E,S,w;D.append((B[:],C,E,S,K[:]));f=m&127;t=m>>7&127;pr=m>>14;p=B[f];v=B[t];q=p*p
+ ep=q==1 and t==E and v==0;cs=t+16-32*(p>0)if ep else t;vc=B[cs];n=pr*abs(p)//p if pr else p
  S+=P(n,t)-P(p,f)
- if vc:S-=P(vc,cs)
- if p*p==36:K[p<0]=t
- if p*p==36 and abs(t-f)==2:
+ if vc:S-=P(vc,cs);B[cs]=0
+ if q==36:K[p<0]=t
+ if q==36 and abs(t-f)==2:
   d=t<f;rf=t+1-3*d;rt=t-1+2*d;r=B[rf];B[rf]=0;B[rt]=r;S+=P(r,rt)-P(r,rf)
- C&=~CM.get(f,0)&~CM.get(t,0);E=(f+t)//2 if p*p==1 and abs(t-f)==32 else-1;B[f]=0
- if vc:B[cs]=0
+ C&=~CM.get(f,0)&~CM.get(t,0);E=(f+t)//2 if q==1 and abs(t-f)==32 else-1;B[f]=0
  B[t]=n;w=not w
 def un():
- global C,E,S,w;x=D.pop();B[:]=x[0];C,E,S=x[1:4];w=not w;K[:]=x[4]
+ global C,E,S,w;B[:],C,E,S,K[:]=D.pop();w=not w
 def L(o=0):return[m for m in G(o)if(mk(m),A(K[w],w)^1,un())[1]]
 def O(ms,tm,p):ms.sort(key=lambda m:(m!=tm,-V[abs(B[m>>7&127])]*10+abs(B[m&127])-V[m>>14],m!=J[p]));return ms
 def sr(d,a,b,p):
  N[0]+=1
  if N[0]>=BG:1/0
- ic=A(K[~w],not w);d+=ic and 0<d<3
+ ic=A(K[~w],not w);d+=ic*(0<d<3)
  if d>0:
   ms=L()
-  if not ms:return ic*(-M+p)
+  if not ms:return ic*(p-M)
  else:
   st=10+S*(w*2-1)
   if d<-16:return st
@@ -77,7 +75,9 @@ def sr(d,a,b,p):
    a=max(a,st);ms=[m for m in L(1)if st+V[abs(B[m>>7&127])]+V[m>>14]+200>=a]
  for m in O(ms,0,p):
   mk(m);s=-sr(d-1,-b,-a,p+1);un();a=max(a,s)
-  if a>=b:J[p]=m if not B[m>>7&127]else J[p];return a
+  if a>=b:
+   if not B[m>>7&127]:J[p]=m
+   return a
  return a
 def pf(s):
  global B,C,E,S,w,K;a=s.split();B=[0]*128;K=[0,0];S=0;q=112
@@ -85,15 +85,14 @@ def pf(s):
   if ch=='/':q-=24
   elif ch.isdigit():q+=int(ch)
   else:
-   p="PNBRQK".find(ch.upper())+1
-   if'a'<=ch:p=-p
+   p=("PNBRQK".find(ch.upper())+1)*(1-2*(ch>'Z'))
    B[q]=p;S+=P(p,q)
-   if p*p==36:K[p<0]=q
+   if p*p>30:K[p<0]=q
    q+=1
- w=a[1]=='w';C=sum(1<<i for i,c in enumerate('KQkq')if c in a[2]);E=-1 if a[3]=='-'else sq(a[3]);D.clear()
+ w=a[1]=='w';C=sum(1<<'KQkq'.find(c)for c in a[2]if c>'-');E=-1 if a[3]=='-'else sq(a[3]);D.clear()
 def sq(a):return 16*int(a[1])+ord(a[0])-113
-def pu(s):return sq(s[:2])|(sq(s[2:4])<<7)|(("nbrq".find(s[4])+2)<<14 if s[4:]else 0)
-def uc(m):f=m&127;t=m>>7&127;return"%c%d%c%d"%(f%8+97,f//16+1,t%8+97,t//16+1)+"  nbrq"[m>>14].strip()
+def pu(s):return sq(s[:2])|(sq(s[2:4])<<7)|("nbrq".find(s[4:])+2<<14)*(s[4:]>'')
+def uc(m):f=m&127;t=m>>7&127;return"%c%d%c%d"%(f%8+97,f/16+1,t%8+97,t/16+1)+"  nbrq"[m>>14].strip()
 def rt(legal):
  ms=[pu(x)for x in legal];N[0]=0;bm=ms[0]
  for d in range(9):
